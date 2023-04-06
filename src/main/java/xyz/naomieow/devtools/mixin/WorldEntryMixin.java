@@ -1,0 +1,48 @@
+package xyz.naomieow.devtools.mixin;
+
+import com.mojang.blaze3d.systems.RenderSystem;
+import xyz.naomieow.devtools.DevToolsMod;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.screen.world.WorldListWidget.WorldEntry;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
+import net.minecraft.world.level.storage.LevelSummary;
+import org.spongepowered.asm.mixin.Final;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+
+@Mixin(WorldEntry.class)
+public abstract class WorldEntryMixin {
+    @Shadow
+    @Final
+    private MinecraftClient client;
+
+    @Shadow
+    @Final
+    private LevelSummary level;
+
+    @Inject(at = @At("HEAD"), method = "render")
+    private void addFolderButton(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta, CallbackInfo ci) {
+        if ((Boolean) this.client.options.getTouchscreen().getValue() || hovered) {
+            RenderSystem.setShaderTexture(0, new Identifier("devtools:textures/gui/world_folder.png"));
+            int i = mouseX - x;
+            boolean bl = i > 234;
+            int j = bl ? 32 : 0;
+            DrawableHelper.drawTexture(matrices, x + 198, y, 96.0F, (float) j, 64, 32, 128, 128);
+        }
+    }
+
+    @Inject(at = @At("HEAD"), method = "mouseClicked", cancellable = true)
+    private void clickFolderButton(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+        if (this.level.isUnavailable()) {
+            cir.setReturnValue(true);
+        } else {
+            DevToolsMod.LOGGER.info("Clicked!");
+        }
+    }
+}
