@@ -3,27 +3,27 @@
   "id": "modid",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Dev Tools",
+  "description": "Useful development tools for Minecraft Datapackers",
   "authors": [
     "Me!"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://github.com/naomieow/dev-tools",
+    "sources": "https://github.com/naomieow/dev-tools"
   },
 
   "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
+  "icon": "assets/devtools/icon.png",
 
   "environment": "*",
   "entrypoints": {
     "main": [
-      "net.fabricmc.example.ExampleMod"
+      "xyz.naomieow.devtools.DevToolsMod"
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "devtools.mixins.json"
   ],
 
   "depends": {
@@ -33,6 +33,5 @@
     "java": ">=17"
   },
   "suggests": {
-    "another-mod": "*"
   }
 }
