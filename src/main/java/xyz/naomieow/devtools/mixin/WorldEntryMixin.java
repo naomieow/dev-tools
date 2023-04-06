@@ -1,6 +1,11 @@
 package xyz.naomieow.devtools.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.screen.world.WorldListWidget;
+import net.minecraft.client.toast.SystemToast;
+import net.minecraft.util.Util;
+import net.minecraft.util.WorldSavePath;
+import net.minecraft.world.level.storage.LevelStorage;
 import xyz.naomieow.devtools.DevToolsMod;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
@@ -16,8 +21,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.io.IOException;
+
 @Mixin(WorldEntry.class)
-public abstract class WorldEntryMixin {
+public abstract class WorldEntryMixin extends WorldListWidget.Entry {
     @Shadow
     @Final
     private MinecraftClient client;
@@ -25,6 +32,8 @@ public abstract class WorldEntryMixin {
     @Shadow
     @Final
     private LevelSummary level;
+
+    @Shadow @Final private WorldListWidget field_19135;
 
     @Inject(at = @At("HEAD"), method = "render")
     private void addFolderButton(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta, CallbackInfo ci) {
@@ -42,7 +51,22 @@ public abstract class WorldEntryMixin {
         if (this.level.isUnavailable()) {
             cir.setReturnValue(true);
         } else {
-            DevToolsMod.LOGGER.info("Clicked!");
+            this.field_19135.setSelected((WorldListWidget.Entry)this);
+            if (mouseX - (double)this.field_19135.getRowLeft() >= 234.0F) {
+                String string = this.level.getName();
+                try {
+                    LevelStorage.Session session = this.client.getLevelStorage().createSession(string);
+                    Util.getOperatingSystem().open(session.getDirectory(WorldSavePath.ROOT).toFile());
+                    try {
+                        session.close();
+                    } catch (IOException e) {
+                        DevToolsMod.LOGGER.error("Failed to unlock level {}", string, e);
+                    }
+                } catch (IOException e) {
+                    SystemToast.addWorldAccessFailureToast(this.client, string);
+                    DevToolsMod.LOGGER.error("Failed to access level {}", string, e);
+                }
+            }
         }
     }
 }
