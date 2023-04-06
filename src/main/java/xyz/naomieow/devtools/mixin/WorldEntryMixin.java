@@ -1,6 +1,7 @@
 package xyz.naomieow.devtools.mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.WorldListWidget;
 import net.minecraft.client.toast.SystemToast;
 import net.minecraft.util.Util;
@@ -42,7 +43,11 @@ public abstract class WorldEntryMixin extends WorldListWidget.Entry {
             int i = mouseX - x;
             boolean bl = i > 234;
             int j = bl ? 32 : 0;
-            DrawableHelper.drawTexture(matrices, x + 198, y, 96.0F, (float) j, 64, 32, 128, 128);
+            if (Screen.hasShiftDown()) {
+                DrawableHelper.drawTexture(matrices, x + 229, y, 32.0F, (float) j, 64, 32, 128, 128);
+            } else {
+                DrawableHelper.drawTexture(matrices, x + 198, y, 96.0F, (float) j, 64, 32, 128, 128);
+            }
         }
     }
 
@@ -56,7 +61,11 @@ public abstract class WorldEntryMixin extends WorldListWidget.Entry {
                 String string = this.level.getName();
                 try {
                     LevelStorage.Session session = this.client.getLevelStorage().createSession(string);
-                    Util.getOperatingSystem().open(session.getDirectory(WorldSavePath.ROOT).toFile());
+                    if (Screen.hasShiftDown()) {
+                        Util.getOperatingSystem().open(session.getDirectory(WorldSavePath.DATAPACKS).toFile());
+                    } else {
+                        Util.getOperatingSystem().open(session.getDirectory(WorldSavePath.ROOT).toFile());
+                    }
                     try {
                         session.close();
                     } catch (IOException e) {
