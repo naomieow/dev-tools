@@ -78,4 +78,22 @@ public abstract class WorldEntryMixin extends WorldListWidget.Entry {
             }
         }
     }
+
+    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/world/WorldListWidget$WorldEntry;play()V"), method = "mouseClicked")
+    private void saveWorldLocation(double mouseX, double mouseY, int button, CallbackInfoReturnable<Boolean> cir) {
+        String string = this.level.getName();
+        try {
+            LevelStorage.Session session = this.client.getLevelStorage().createSession(string);
+            DevToolsMod.worldSaveLocation = session.getDirectory(WorldSavePath.ROOT);
+            DevToolsMod.worldDatapackLocation = session.getDirectory(WorldSavePath.DATAPACKS);
+            try {
+                session.close();
+            } catch (IOException e) {
+                DevToolsMod.LOGGER.error("Failed to unlock level {}", string, e);
+            }
+        } catch (IOException e) {
+            SystemToast.addWorldAccessFailureToast(this.client, string);
+            DevToolsMod.LOGGER.error("Failed to access level {}", string, e);
+        }
+    }
 }
