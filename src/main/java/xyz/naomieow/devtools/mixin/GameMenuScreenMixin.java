@@ -6,6 +6,8 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.GridWidget;
 import net.minecraft.client.gui.widget.SimplePositioningWidget;
 import net.minecraft.text.Text;
+import net.minecraft.util.Util;
+import net.minecraft.util.WorldSavePath;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -32,11 +34,10 @@ public abstract class GameMenuScreenMixin extends Screen {
             DevToolsMod.LOGGER.info(adder.getGridWidget().getMainPositioner().toString());
 
             adder.add(new FolderButtonWidget(0, 0, (button) -> {
-                String dir = this.client.getLevelStorage().getSavesDirectory().toString();
+                Util.getOperatingSystem().open(DevToolsMod.worldSaveLocation.toFile());
             }).setButton(0));
             adder.add(new FolderButtonWidget(0, 0, (button) -> {
-                String dir = this.client.getLevelStorage().getSavesDirectory().toString();
-
+                Util.getOperatingSystem().open(DevToolsMod.worldDatapackLocation.toFile());
             }).setButton(1));
 
             gridWidget.refreshPositions();
